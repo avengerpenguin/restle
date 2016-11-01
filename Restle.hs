@@ -51,7 +51,9 @@ enter server = handler ((serverState server), (clientStateTransitions server))
     where (_, _, handler) = head $ filter (transitionMatch methodGet "/") (serviceTransitions (service server))
 
 
-
+doGet entityData_ (serverState_, clientStateTransitions_) =
+    (serverState_, clientStateTransitions_, client_)
+    where client_ = ClientState {entityData = entityData_, clientTransitions = []}
 
 
 --data Link = Link

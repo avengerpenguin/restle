@@ -20,18 +20,21 @@ import Data.RDF
 --app = makeServer server
 
 
-indexHandler (serverState_, clientStateTransitions_) =
-    (serverState_, clientStateTransitions_, client_)
-    where client_ = ClientState {entityData = empty, clientTransitions = []}
+indexHandler = doGet empty
+
+--indexHandler :: (ServerState, ClientStateTransitions) -> (ServerState, ClientStateTransitions, ClientState)
+--indexHandler (serverState_, clientStateTransitions_) =
+--    (serverState_, clientStateTransitions_, client_)
+--    where client_ = ClientState {entityData = empty, clientTransitions = []}
 
 
-
+myService :: Service
 myService = Service
     { serviceTransitions = [
         (methodGet, "/", indexHandler)
     ]}
 
-
+myServer :: Server
 myServer = Server
     { service = myService
     , serverState = empty
