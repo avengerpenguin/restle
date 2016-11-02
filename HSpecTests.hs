@@ -7,6 +7,7 @@ import Network.Wai.Test
 --import Network.Wai.Internal (Request (Request))
 import Network.HTTP.Types
 import Data.RDF
+import Control.Monad.State
 
 
 --server = Server {
@@ -19,8 +20,10 @@ import Data.RDF
 --server = addTriple empty $ triple (unode "/") (unode "http://schema.org/headline") (lnode "Hello, World!")
 --app = makeServer server
 
-
-indexHandler = doGet empty
+indexHandler :: Handler
+indexHandler server "/" methodGet _ = do
+    let client = empty
+    return client
 
 --indexHandler :: (ServerState, ClientStateTransitions) -> (ServerState, ClientStateTransitions, ClientState)
 --indexHandler (serverState_, clientStateTransitions_) =
@@ -29,16 +32,14 @@ indexHandler = doGet empty
 
 
 myService :: Service
-myService = Service
-    { serviceTransitions = [
+myService = Service [
         (methodGet, "/", indexHandler)
-    ]}
+    ]
 
 myServer :: Server
 myServer = Server
     { service = myService
-    , serverState = empty
-    , clientStateTransitions = empty}
+    , serverState = empty}
 
 
 main :: IO ()
@@ -71,6 +72,6 @@ main = hspec $ do
 
     describe "basic full app" $ do
         it "uhhh" $ do
-            let (_, _, client) = enter myServer
-                 in length (triplesOf (entityData client)) `shouldBe` 0
+            let client = evalState (enter myServer) myServer
+                in length (triplesOf client) `shouldBe` 0
             --(server', client') <- transition server client $ "GET" "people" None

@@ -12,7 +12,8 @@ import qualified Data.ByteString.UTF8 as UTF8
 import qualified Data.ByteString.Lazy.UTF8 as UTF8Lazy
 import Blaze.ByteString.Builder (toByteString, Builder, fromWord8)
 import Data.IORef
-
+import Control.Monad.State
+import Data.Maybe
 
 type Graph = RDF TList
 
@@ -20,40 +21,66 @@ type Path = T.Text
 type Rel = T.Text
 type URI = T.Text
 
-type ServerState = Graph
-type ClientStateTransitions = Graph
+--type ServerState = Graph
+--type ClientStateTransitions = Graph
 
-data Service = Service
-    { serviceTransitions :: [
-        ( Method
-        , Path
-        , ((ServerState, ClientStateTransitions)
-            -> (ServerState, ClientStateTransitions, ClientState))
-        )
-    ]}
-
+--type Server = (Service, State Graph)
 data Server = Server
     { service :: Service
-    , serverState :: ServerState
-    , clientStateTransitions :: ClientStateTransitions}
+    , serverState :: Graph}
 
-data ClientState = ClientState
-    { entityData :: Graph
-    , clientTransitions :: [(Rel, URI, Maybe Graph)]}
+type Client = Graph
+
+type Handler = Server -> Path -> Method -> Maybe Graph -> State Server Client
+
+data Service = Service [(Method, Path, Handler)]
+
+
+--query :: Client -> Rel -> Graph -> State Server Client
+--
+--followLink :: Client -> Rel -> State Server Client
+--
+--request :: Server -> Path -> Method -> Maybe Graph -> State Server Client
+
+
+--data Service = Service
+--    { serviceTransitions :: [
+--        ( Method
+--        , Path
+--        , Handler
+--        )
+--    ]}
+
+--data ClientState = ClientState
+--    { entityData :: Graph
+--    , clientTransitions :: [(Rel, URI, Maybe Graph)]}
 
 
 transitionMatch method_ path_ (m, p, h) =
     (method_ == m) && (path_ == p)
 
 
-enter :: Server -> (ServerState, ClientStateTransitions, ClientState)
-enter server = handler ((serverState server), (clientStateTransitions server))
-    where (_, _, handler) = head $ filter (transitionMatch methodGet "/") (serviceTransitions (service server))
+enter :: Server -> State Server Client
+enter server =
+    let Service routes = service server
+        in let (_, _, handler) = head $ filter (transitionMatch methodGet "/") (routes)
+            in handler server "/" methodGet Nothing
 
 
-doGet entityData_ (serverState_, clientStateTransitions_) =
-    (serverState_, clientStateTransitions_, client_)
-    where client_ = ClientState {entityData = entityData_, clientTransitions = []}
+--enter server = handler ((serverState server), (clientStateTransitions server))
+--    where (_, _, handler) = head $ filter (transitionMatch methodGet "/") (serviceTransitions (service server))
+
+
+--makeData :: [(Path, [(Rel, URI)])] -> RDF TList
+--makeData [] = empty
+--makeData ((p, rus):xs) = foldr (\triple gr -> addTriple gr triple) (makeData xs) ts
+--    where ts = map (\(r, u) -> triple (unode p) (unode r) (unode u)) rus
+--
+--
+--doGet :: (RDF TList) -> (ServerState, ClientStateTransitions) -> (ServerState, ClientStateTransitions, ClientState)
+--doGet entityData_ (serverState_, clientStateTransitions_) =
+--    (serverState_, clientStateTransitions_, client_)
+--    where client_ = ClientState {entityData = entityData_, clientTransitions = []}
 
 
 --data Link = Link
