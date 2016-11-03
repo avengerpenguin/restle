@@ -60,8 +60,9 @@ transitionMatch method_ path_ (m, p, h) =
     (method_ == m) && (path_ == p)
 
 
-enter :: Server -> State Server Client
-enter server =
+enter :: State Server Client
+enter = do
+    server <- get
     let Service routes = service server
         in let (_, _, handler) = head $ filter (transitionMatch methodGet "/") routes
             in handler server "/" methodGet Nothing

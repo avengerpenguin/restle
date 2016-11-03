@@ -25,6 +25,11 @@ indexHandler server "/" methodGet _ = do
     let client = empty
     return client
 
+berlinHandler :: Handler
+berlinHandler server "/things/3354" methodGet _ = do
+    let client = empty
+    return client
+
 --indexHandler :: (ServerState, ClientStateTransitions) -> (ServerState, ClientStateTransitions, ClientState)
 --indexHandler (serverState_, clientStateTransitions_) =
 --    (serverState_, clientStateTransitions_, client_)
@@ -33,7 +38,8 @@ indexHandler server "/" methodGet _ = do
 
 myService :: Service
 myService = Service [
-        (methodGet, "/", indexHandler)
+        (methodGet, "/", indexHandler),
+        (methodGet, "/things/3354", berlinHandler)
     ]
 
 myServer :: Server
@@ -72,8 +78,13 @@ main = hspec $ do
 
     describe "basic full app" $ do
         it "uhhh" $ do
-            let client = evalState (enter myServer) myServer
+            let client = evalState enter myServer
                 in length (triplesOf client) `shouldBe` 0
             --let client = evalState (enter myServer) myServer
             --    in length (triplesOf client) `shouldBe` 0
             --(server', client') <- transition server client $ "GET" "people" None
+
+        it "does more" $ do
+            let client = flip evalState myServer $ do client <- enter
+                                                      return client
+            length (triplesOf client) `shouldBe` 0
