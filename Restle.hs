@@ -63,7 +63,7 @@ transitionMatch method_ path_ (m, p, h) =
 enter :: Server -> State Server Client
 enter server =
     let Service routes = service server
-        in let (_, _, handler) = head $ filter (transitionMatch methodGet "/") (routes)
+        in let (_, _, handler) = head $ filter (transitionMatch methodGet "/") routes
             in handler server "/" methodGet Nothing
 
 

@@ -74,4 +74,6 @@ main = hspec $ do
         it "uhhh" $ do
             let client = evalState (enter myServer) myServer
                 in length (triplesOf client) `shouldBe` 0
+            --let client = evalState (enter myServer) myServer
+            --    in length (triplesOf client) `shouldBe` 0
             --(server', client') <- transition server client $ "GET" "people" None
