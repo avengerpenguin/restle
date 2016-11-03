@@ -1,5 +1,5 @@
 module Restle where
-
+    
 import Network.Wai
 import Network.Wai.Test
 import Network.HTTP.Types
@@ -30,7 +30,7 @@ data Server = Server
     , serverState :: Graph}
 
 type Client = Graph
-
+                  
 type Handler = Server -> Path -> Method -> Maybe Graph -> State Server Client
 
 data Service = Service [(Method, Path, Handler)]
@@ -62,12 +62,12 @@ transitionMatch method_ path_ (m, p, h) =
 
 enter :: State Server Client
 enter = do
-    server <- get
-    let Service routes = service server
-        in let (_, _, handler) = head $ filter (transitionMatch methodGet "/") routes
-            in handler server "/" methodGet Nothing
-
-
+  server <- get
+  let Service routes = service server
+    in let (_, _, handler) = head $ filter (transitionMatch methodGet "/") routes
+      in handler server "/" methodGet Nothing
+                  
+                  
 --enter server = handler ((serverState server), (clientStateTransitions server))
 --    where (_, _, handler) = head $ filter (transitionMatch methodGet "/") (serviceTransitions (service server))
 

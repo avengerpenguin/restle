@@ -57,7 +57,7 @@ library
   -- other-extensions:    
   
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.9 && <4.10
+  build-depends:       base >=4.8 && <4.10
                         , yesod-test
                         , yesod-core
                         , yesod
@@ -70,6 +70,7 @@ library
                         , rdf4h
                         , utf8-string
                         , blaze-builder
+                        , tagged
 
   -- Directories containing source files.
   -- hs-source-dirs:      
