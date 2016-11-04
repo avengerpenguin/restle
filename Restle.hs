@@ -79,12 +79,17 @@ follow client rel = do
            in handler server path methodGet Nothing
   
 
+followFirst client rel = head $ follow client rel
 
 makeLinks :: Path -> [(T.Text, T.Text)] -> Client
 makeLinks path [] = empty
 makeLinks path ((rel, href):xs) = addTriple (makeLinks path xs) $ triple (unode path) (unode rel) (unode href)
               
-              
+
+union :: Graph -> Graph -> Graph
+union g1 g2 = foldr (\triple gr -> addTriple gr triple) g1 ts
+  where ts = triplesOf g2
+
 --enter server = handler ((serverState server), (clientStateTransitions server))
 --    where (_, _, handler) = head $ filter (transitionMatch methodGet "/") (serviceTransitions (service server))
 
