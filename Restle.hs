@@ -67,7 +67,24 @@ enter = do
     in let (_, _, handler) = head $ filter (transitionMatch methodGet "/") routes
       in handler server "/" methodGet Nothing
                   
-                  
+
+follow :: Client -> Rel -> [State Server Client]
+follow client rel = do
+  let triples = query client Nothing (Just $ unode rel) Nothing
+  flip map triples $ \(Triple s p o) -> do
+      server <- get
+      let UNode path = o
+        in let Service routes = service server
+          in let (_, _, handler) = head $ filter (transitionMatch methodGet path) routes
+           in handler server path methodGet Nothing
+  
+
+
+makeLinks :: Path -> [(T.Text, T.Text)] -> Client
+makeLinks path [] = empty
+makeLinks path ((rel, href):xs) = addTriple (makeLinks path xs) $ triple (unode path) (unode rel) (unode href)
+              
+              
 --enter server = handler ((serverState server), (clientStateTransitions server))
 --    where (_, _, handler) = head $ filter (transitionMatch methodGet "/") (serviceTransitions (service server))
 

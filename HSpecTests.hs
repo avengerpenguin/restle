@@ -22,7 +22,9 @@ import Control.Monad.State
 
 indexHandler :: Handler
 indexHandler server "/" methodGet _ = do
-  let client = empty
+  let client = makeLinks "/" [
+                ("/vocab/thing", "/things/3354")
+               ]
   return client
 
 berlinHandler :: Handler
@@ -84,5 +86,6 @@ main = hspec $ do
       it "does more" $ do
         let client = flip evalState myServer $ do
                          client <- enter
+                         client <- head $ follow client "people"
                          return client
         length (triplesOf client) `shouldBe` 0
