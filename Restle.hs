@@ -21,10 +21,6 @@ type Path = T.Text
 type Rel = T.Text
 type URI = T.Text
 
---type ServerState = Graph
---type ClientStateTransitions = Graph
-
---type Server = (Service, State Graph)
 data Server = Server
     { service :: Service
     , serverState :: Graph}
@@ -34,26 +30,6 @@ type Client = Graph
 type Handler = Server -> Path -> Method -> Maybe Graph -> State Server Client
 
 data Service = Service [(Method, Path, Handler)]
-
-
---query :: Client -> Rel -> Graph -> State Server Client
---
---followLink :: Client -> Rel -> State Server Client
---
---request :: Server -> Path -> Method -> Maybe Graph -> State Server Client
-
-
---data Service = Service
---    { serviceTransitions :: [
---        ( Method
---        , Path
---        , Handler
---        )
---    ]}
-
---data ClientState = ClientState
---    { entityData :: Graph
---    , clientTransitions :: [(Rel, URI, Maybe Graph)]}
 
 
 transitionMatch method_ path_ (m, p, h) =
