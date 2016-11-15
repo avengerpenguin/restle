@@ -15,7 +15,7 @@ import Data.IORef
 import Control.Monad.State
 import Data.Maybe
 
-type Graph = RDF TList
+type Graph = RDF AdjHashMap
 
 type Path = T.Text
 type Rel = T.Text
@@ -26,8 +26,8 @@ data Server = Server
     , serverState :: Graph}
 
 type Client = Graph
-                  
-type Handler = Server -> Path -> Method -> Maybe Graph -> State Server Client
+
+type Handler = Path -> Method -> Maybe Graph -> State Server Client
 
 data Service = Service [(Method, Path, Handler)]
 
@@ -41,7 +41,7 @@ enter = do
   server <- get
   let Service routes = service server
     in let (_, _, handler) = head $ filter (transitionMatch methodGet "/") routes
-      in handler server "/" methodGet Nothing
+      in handler "/" methodGet Nothing
                   
 
 follow :: Client -> Rel -> [State Server Client]
@@ -52,19 +52,36 @@ follow client rel = do
       let UNode path = o
         in let Service routes = service server
           in let (_, _, handler) = head $ filter (transitionMatch methodGet path) routes
-           in handler server path methodGet Nothing
+           in handler path methodGet Nothing
   
 
 followFirst client rel = head $ follow client rel
+
 
 makeLinks :: Path -> [(T.Text, T.Text)] -> Client
 makeLinks path [] = empty
 makeLinks path ((rel, href):xs) = addTriple (makeLinks path xs) $ triple (unode path) (unode rel) (unode href)
               
 
+makeQuery :: [(T.Text, T.Text)] -> Graph
+makeQuery [] = empty
+makeQuery ((key, value):xs) = addTriple (makeQuery xs) $ triple (unode "/") (unode key) (lnode $ PlainL value)
+
+
+
 union :: Graph -> Graph -> Graph
-union g1 g2 = foldr (\triple gr -> addTriple gr triple) g1 ts
-  where ts = triplesOf g2
+union g1 g2 = foldr (\triple gr -> addTriple gr triple) g1 $ triplesOf g2
+
+
+
+
+
+
+
+
+
+
+
 
 --enter server = handler ((serverState server), (clientStateTransitions server))
 --    where (_, _, handler) = head $ filter (transitionMatch methodGet "/") (serviceTransitions (service server))

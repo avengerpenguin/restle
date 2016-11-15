@@ -11,7 +11,7 @@ import Control.Monad.State
 
 
 indexHandler :: Handler
-indexHandler server "/" methodGet _ = do
+indexHandler "/" methodGet _ = do
   let links = makeLinks "/" [
                 ("/vocab/thing", "/things/3354")
                ]
@@ -20,7 +20,7 @@ indexHandler server "/" methodGet _ = do
   return client
 
 berlinHandler :: Handler
-berlinHandler server "/things/3354" methodGet _ = do
+berlinHandler "/things/3354" methodGet _ = do
   let client = empty
   return client
 
